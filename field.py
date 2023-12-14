@@ -1,7 +1,9 @@
 import sys
 from random import randint, choice
-import scoresTable
+
 import pygame as pg
+
+import scoresTable
 
 pg.init()
 
@@ -115,8 +117,8 @@ class Field:
         pg.display.flip()
 
     def right(self):
-        movement = False
-        combined = [[False for _ in range(self.fieldSize)] for __ in range(self.fieldSize)]
+        moved = False
+        combined = [False for _ in range(self.fieldSize)]
         for _ in range(self.fieldSize):
             for row in self.matrix:
                 for j in range(self.fieldSize - 2, -1, -1):
@@ -125,16 +127,18 @@ class Field:
                     if row[j + 1] == 0:
                         row[j + 1] = row[j]
                         row[j] = 0
-                        movement = True
-                    elif row[j + 1] == row[j]:
+                        moved = True
+                    elif row[j + 1] == row[j] and not combined[j + 1] and not combined[j]:
                         row[j + 1] *= 2
-                        movement = True
-                        self.score += row[j + 1]
                         row[j] = 0
-        if movement: self.generate()
+                        self.score += row[j + 1]
+                        moved = True
+                        combined[j + 1] = True
+        if moved: self.generate()
 
     def left(self):
-        movement = False
+        moved = False
+        combined = [False for _ in range(self.fieldSize)]
         for _ in range(self.fieldSize):
             for row in self.matrix:
                 for j in range(1, self.fieldSize):
@@ -143,16 +147,18 @@ class Field:
                     if row[j - 1] == 0:
                         row[j - 1] = row[j]
                         row[j] = 0
-                        movement = True
-                    elif row[j - 1] == row[j]:
+                        moved = True
+                    elif row[j - 1] == row[j] and not combined[j - 1] and not combined[j]:
                         row[j - 1] *= 2
-                        self.score += row[j - 1]
                         row[j] = 0
-                        movement = True
-        if movement: self.generate()
+                        self.score += row[j - 1]
+                        moved = True
+                        combined[j - 1] = True
+        if moved: self.generate()
 
     def up(self):
-        movement = False
+        moved = False
+        combined = [[False for _ in range(self.fieldSize)] for __ in range(self.fieldSize)]
         for _ in range(self.fieldSize):
             for i in range(1, self.fieldSize):
                 for j in range(self.fieldSize):
@@ -161,16 +167,18 @@ class Field:
                     if self.matrix[i - 1][j] == 0:
                         self.matrix[i - 1][j] = self.matrix[i][j]
                         self.matrix[i][j] = 0
-                        movement = True
-                    elif self.matrix[i - 1][j] == self.matrix[i][j]:
+                        moved = True
+                    elif self.matrix[i - 1][j] == self.matrix[i][j] and not combined[i - 1][j] and not combined[i][j]:
                         self.matrix[i - 1][j] *= 2
-                        self.score += self.matrix[i - 1][j]
                         self.matrix[i][j] = 0
-                        movement = True
-        if movement: self.generate()
+                        self.score += self.matrix[i - 1][j]
+                        moved = True
+                        combined[i - 1][j] = True
+        if moved: self.generate()
 
     def down(self):
-        movement = False
+        moved = False
+        combined = [[False for _ in range(self.fieldSize)] for __ in range(self.fieldSize)]
         for _ in range(self.fieldSize):
             for i in range(self.fieldSize - 2, -1, -1):
                 for j in range(self.fieldSize):
@@ -179,13 +187,14 @@ class Field:
                     if self.matrix[i + 1][j] == 0:
                         self.matrix[i + 1][j] = self.matrix[i][j]
                         self.matrix[i][j] = 0
-                        movement = True
-                    elif self.matrix[i + 1][j] == self.matrix[i][j]:
+                        moved = True
+                    elif self.matrix[i + 1][j] == self.matrix[i][j] and not combined[i + 1][j] and not combined[i][j]:
                         self.matrix[i + 1][j] *= 2
-                        self.score += self.matrix[i + 1][j]
                         self.matrix[i][j] = 0
-                        movement = True
-        if movement: self.generate()
+                        self.score += self.matrix[i + 1][j]
+                        moved = True
+                        combined[i + 1][j] = True
+        if moved: self.generate()
 
     def run(self):
         self.generate()
@@ -204,7 +213,7 @@ class Field:
                         pg.quit()
                         sys.exit()
                     if event.key == pg.K_s:
-                        scoresTable.showScores()
+                        scoresTable.showScores(self.fieldSize)
             while self.has_same_neighbors() or self.has_zero():
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
@@ -226,17 +235,17 @@ class Field:
                             pg.quit()
                             sys.exit()
                         elif event.key == pg.K_s:
-                            scoresTable.showScores()
+                            scoresTable.showScores(self.fieldSize)
                         else:
                             continue
                     self.update()
 
-            txt = font.render('YOU LOST', True, "red")
-            self.screen.blit(txt, (self.screenWidth / 2 - 50, self.screenHeight / 2 - 5))
+            self.screen.blit(font.render('YOU LOST', True, "red"),
+                             (self.screenWidth / 2 - 50, self.screenHeight / 2 - 5))
             pg.display.flip()
             if once:
                 once = False
-                scoresTable.askSaveScore(self.score)
+                scoresTable.askSaveScore(self.score, self.fieldSize)
 
 
 if __name__ == '__main__':

@@ -5,7 +5,9 @@ import field
 
 choice = None
 win = None
-def startGame(event):
+
+
+def startGame():
     global choice, win
     fieldSize = choice.get()
     win.destroy()
@@ -18,7 +20,7 @@ def startGame(event):
         print()
 
 
-def helpBox(event):
+def helpBox():
     help = tk.Tk()
     help.title("Help")
     helpText = tk.Label(help, text="controls:")
@@ -31,20 +33,22 @@ def helpBox(event):
     help.mainloop()
     return 'break'
 
+
 def run():
     global choice, win
     win = tk.Tk()
     win.title("2048")
     values = ['3x3', '4x4', '5x5', '6x6', '8x8']
     choice = ttk.Combobox(win, values=values)
-    greatings = tk.Label(win, text="Hello, this is the copy\nof wellknown game 2048", font="Arial 10")
-    c = tk.Label(win, text="Choose field size\nand start playing\n(try to beat best score)", bg="black", fg="white",
-                 font="Arial 10")
-    credits = tk.Label(win, text="mbugzy", font="Arial 5 italic")
-    greatings.pack()
+    greetings = tk.Label(win, text="Hello, this is the copy\nof wellknown game 2048", font="Arial 15")
+    c = tk.Label(win, text="Choose field size\nand start playing\n(try to beat best score)", font="Arial 15")
+    forHelp = tk.Label(win, text="F1 - help", font="Arial 10 italic")
+    credits = tk.Label(win, text="mbugzy", font="Arial 7 italic")
+    greetings.pack()
     c.pack()
     choice.pack()
+    forHelp.pack()
     credits.pack()
-    choice.bind("<<ComboboxSelected>>", startGame)
-    win.bind("<F1>", helpBox)
+    choice.bind("<<ComboboxSelected>>", lambda event: startGame())
+    win.bind("<F1>", lambda event: helpBox())
     win.mainloop()

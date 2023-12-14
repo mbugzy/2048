@@ -45,20 +45,21 @@ def has_same_neighbors():
 def right():
     global matrix, fieldSize
     moved = False
-    combined = [[False for _ in range(fieldSize)] for __ in range(fieldSize)]
+    combined = [False for _ in range(fieldSize)]
     for row in matrix:
-        for j in range(fieldSize - 1, -1, -1):
-            if row[j] == 0:
-                continue
-            if j > 0 and row[j - 1] == row[j] and not combined[j][j - 1]:
-                row[j - 1] *= 2
-                row[j] = 0
-                combined[j][j - 1] = True
-                moved = True
-            elif j < fieldSize - 1 and not combined[j][j + 1]:
-                row[j + 1] = row[j]
-                row[j] = 0
-                moved = True
+        for _ in range(fieldSize):
+            for j in range(fieldSize - 2, -1, -1):
+                if row[j] == 0:
+                    continue
+                if row[j + 1] == 0:
+                    row[j + 1] = row[j]
+                    row[j] = 0
+                    moved = True
+                elif (row[j + 1] == row[j]) and not combined[j + 1] and not combined[j]:
+                    row[j + 1] *= 2
+                    row[j] = 0
+                    moved = True
+                    combined[j + 1] = True
     if moved:
         generateRandom()
 
@@ -66,79 +67,78 @@ def right():
 def left():
     global matrix, fieldSize
     moved = False
-    combined = [[False for _ in range(fieldSize)] for __ in range(fieldSize)]
+    combined = [False for _ in range(fieldSize)]
     for row in matrix:
-        for j in range(1, fieldSize):
-            if row[j] == 0:
-                continue
-            if j < fieldSize - 1 and row[j + 1] == row[j] and not combined[j][j + 1]:
-                row[j + 1] *= 2
-                row[j] = 0
-                combined[j][j + 1] = True
-                moved = True
-            elif j > 0 and not combined[j][j - 1]:
-                row[j - 1] = row[j]
-                row[j] = 0
-                moved = True
+        for _ in range(fieldSize):
+            for j in range(1, fieldSize):
+                if row[j] == 0:
+                    continue
+                if row[j - 1] == 0:
+                    row[j - 1] = row[j]
+                    row[j] = 0
+                    moved = True
+                elif row[j - 1] == row[j] and not combined[j - 1] and not combined[j]:
+                    row[j - 1] *= 2
+                    row[j] = 0
+                    moved = True
+                    combined[j - 1] = True
     if moved:
         generateRandom()
-
 
 def up():
     global matrix, fieldSize
     moved = False
     combined = [[False for _ in range(fieldSize)] for __ in range(fieldSize)]
-    for i in range(1, fieldSize):
-        for j in range(fieldSize):
-            if matrix[i][j] == 0:
-                continue
-            if i < fieldSize - 1 and matrix[i + 1][j] == matrix[i][j] and not combined[i + 1][j]:
-                matrix[i + 1][j] *= 2
-                matrix[i][j] = 0
-                combined[i + 1][j] = True
-                moved = True
-            elif i > 0 and not combined[i - 1][j]:
-                matrix[i - 1][j] = matrix[i][j]
-                matrix[i][j] = 0
-                moved = True
+    for _ in range(fieldSize):
+        for i in range(1, fieldSize):
+            for j in range(fieldSize):
+                if matrix[i][j] == 0:
+                    continue
+                if matrix[i - 1][j] == 0:
+                    matrix[i - 1][j] = matrix[i][j]
+                    matrix[i][j] = 0
+                    moved = True
+                elif matrix[i - 1][j] == matrix[i][j] and not combined[i - 1][j] and not combined[i][j]:
+                    matrix[i - 1][j] *= 2
+                    matrix[i][j] = 0
+                    moved = True
+                    combined[i - 1][j] = True
     if moved:
         generateRandom()
-
 
 def down():
     global matrix, fieldSize
     moved = False
     combined = [[False for _ in range(fieldSize)] for __ in range(fieldSize)]
-    for i in range(fieldSize - 2, -1, -1):
-        for j in range(fieldSize):
-            if matrix[i][j] == 0:
-                continue
-            if i > 0 and matrix[i - 1][j] == matrix[i][j] and not combined[i - 1][j]:
-                matrix[i - 1][j] *= 2
-                matrix[i][j] = 0
-                combined[i - 1][j] = True
-                moved = True
-            elif i < fieldSize - 1 and not combined[i + 1][j]:
-                matrix[i + 1][j] = matrix[i][j]
-                matrix[i][j] = 0
-                moved = True
+    for _ in range(fieldSize):
+        for i in range(fieldSize - 2, -1, -1):
+            for j in range(fieldSize):
+                if matrix[i][j] == 0:
+                    continue
+                if matrix[i + 1][j] == 0:
+                    matrix[i + 1][j] = matrix[i][j]
+                    matrix[i][j] = 0
+                    moved = True
+                elif matrix[i + 1][j] == matrix[i][j] and not combined[i + 1][j] and not combined[i][j]:
+                    matrix[i + 1][j] *= 2
+                    matrix[i][j] = 0
+                    moved = True
+                    combined[i + 1][j] = True
     if moved:
         generateRandom()
-
 
 if __name__ == '__main__':
     fieldSize = 4
     matrix = [[0 for _ in range(fieldSize)] for __ in range(fieldSize)]
-    matrix[0][0] = 2
-    matrix[0][1] = 2
-    matrix[0][2] = 4
-    matrix[0][3] = 4
+    # matrix[0][0] = 4
+    # matrix[0][1] = 4
+    # matrix[0][2] = 2
+    # matrix[0][3] = 2
     generateRandom()
     generateRandom()
     while has_zero() or has_same_neighbors():
         for x in matrix:
             print(x)
-        print()
         act = input()
         if act:
             if act == 'r':
