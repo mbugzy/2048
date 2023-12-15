@@ -8,14 +8,9 @@ import scoresTable
 pg.init()
 
 font = pg.font.SysFont('arial', 30)
-try:
-    bestScore = int(open('bestScore.csv', 'r').read().split('\n')[1].split(',')[0])
-except ValueError:
-    bestScore = 0
 
 
 def paintBG(screen: pg.Surface, screenWidth: int, screenHeight: int, fieldSize: int, score: int):
-    global bestScore
 
     screen.fill((100, 100, 100))
     spacer = screenWidth / 9
@@ -33,10 +28,13 @@ def paintBG(screen: pg.Surface, screenWidth: int, screenHeight: int, fieldSize: 
             pg.draw.rect(screen, (150, 150, 150),
                          (spacer * (i + 1) + square * i, screenHeight / 5 + spacer * (j + 1) + square * j,
                           square, square), 0, 5)
-
+    try:
+        bestScore = scoresTable.getBest(fieldSize)
+    except:
+        bestScore = 0
     if bestScore < score:
         bestScore = score
-        # open('bestScore.csv', 'w').write(str(bestScore))
+
     texts_and_positions = [
         ('Best Score:', (textSpacer, textSpacer / 3)),
         (str(bestScore), (textSpacer, textSpacer * 1.2)),
@@ -211,13 +209,16 @@ class Field:
                         self.run()
                     if event.key == pg.K_q:
                         pg.quit()
+                        scoresTable.askSaveScore(self.score, self.fieldSize)
                         sys.exit()
                     if event.key == pg.K_s:
                         scoresTable.showScores(self.fieldSize)
             while self.has_same_neighbors() or self.has_zero():
+                once = True
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
                         pg.quit()
+                        scoresTable.askSaveScore(self.score, self.fieldSize)
                         sys.exit()
                     if event.type == pg.KEYDOWN:
                         if event.key == pg.K_RIGHT:
@@ -233,6 +234,7 @@ class Field:
                             self.run()
                         elif event.key == pg.K_q:
                             pg.quit()
+                            scoresTable.askSaveScore(self.score, self.fieldSize)
                             sys.exit()
                         elif event.key == pg.K_s:
                             scoresTable.showScores(self.fieldSize)
