@@ -1,22 +1,38 @@
 import datetime
+import os
+import sys
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter import messagebox
 
 import pandas as pd
 
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
 def getBest(fieldSize):
-    df = pd.read_csv('bestScore.csv')
+    df = pd.read_csv(resource_path('bestScore.csv'))
     a = df[df['field'] == fieldSize]
     return a['score'].max()
+
 
 def showScores(fieldSize):
     win = tk.Tk()
     win.title("Scores")
-    win.geometry('300x400')
+    x = win.winfo_screenwidth()
+    y = win.winfo_screenheight()
+    win.geometry(f'300x400+{x // 2 - 150}+{y // 2 - 200}')
     win.resizable(False, False)
 
-    df = pd.read_csv('bestScore.csv')
+    df = pd.read_csv(resource_path('bestScore.csv'))
 
     table = ttk.Treeview(win, columns=df.columns, height=300)
     table.heading('#1', text='place')
@@ -40,21 +56,24 @@ def showScores(fieldSize):
             break
 
     table.pack()
+    win.bind('<Escape>', lambda event: win.destroy())
     win.mainloop()
 
 
 def askSaveScore(score, fieldSize):
     winAsk = tk.Tk()
     winAsk.title('Save score')
-    winAsk.geometry('200x50')
+    x = winAsk.winfo_screenwidth()
+    y = winAsk.winfo_screenheight()
+    winAsk.geometry(f'200x100+{x // 2 - 100}+{y // 2 - 50}')
     winAsk.resizable(False, False)
     ttk.Label(winAsk, text='Do you want to save your score?').pack()
     ttk.Button(winAsk, text='Yes', command=lambda: saveScoreWindow(score, fieldSize, winAsk)).pack()
+    ttk.Button(winAsk, text='No', command=winAsk.destroy).pack()
     winAsk.mainloop()
 
 
-
-def saveScoreWindow(score, fieldSize,previousWindow=None):
+def saveScoreWindow(score, fieldSize, previousWindow=None):
     if previousWindow:
         previousWindow.destroy()
     winSave = tk.Tk()
@@ -73,9 +92,9 @@ def saveScoreWindow(score, fieldSize,previousWindow=None):
 
 def saveScore(name, score, fieldSize, previousWindow):
     previousWindow.destroy()
-    df = pd.read_csv('bestScore.csv')
+    df = pd.read_csv(resource_path('bestScore.csv'))
 
     df.loc[len(df.index)] = [fieldSize, score, name, datetime.date.today().strftime('%d/%m/%Y')]
     df.sort_values(by=['score'], inplace=True, ascending=False)
-    df.to_csv('bestScore.csv', index=False)
+    df.to_csv(resource_path('bestScore.csv'), index=False)
     showScores(fieldSize)

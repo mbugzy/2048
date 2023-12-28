@@ -3,21 +3,18 @@ import tkinter.ttk as ttk
 
 import field
 
-choice = None
-win = None
 
-
-def startGame():
-    global choice, win
-    fieldSize = choice.get()
-    win.destroy()
-    qwe = field.Field(int(fieldSize[0]))
-    qwe.run()
-    print('last:')
-    for row in qwe.matrix:
-        for val in row:
-            print("{0:>{w}.{p}f}".format(val, w=5, p=0), end=" ")
-        print()
+def startGame(prevWin, fieldSize):
+    try:
+        prevWin.destroy()
+        qwe = field.Field(int(fieldSize[0]))
+        qwe.run()
+    except Exception as e:
+        print(e)
+        import traceback
+        traceback.print_exc()
+        while True:
+            pass
 
 
 def helpBox():
@@ -35,9 +32,11 @@ def helpBox():
 
 
 def run():
-    global choice, win
     win = tk.Tk()
     win.title("2048")
+    x = win.winfo_screenwidth()
+    y = win.winfo_screenheight()
+    win.geometry(f'+{x // 2 -100}+{y // 2-100 }')
     values = ['3x3', '4x4', '5x5', '6x6', '8x8']
     choice = ttk.Combobox(win, values=values)
     greetings = tk.Label(win, text="Hello, this is the copy\nof wellknown game 2048", font="Arial 15")
@@ -49,6 +48,6 @@ def run():
     choice.pack()
     forHelp.pack()
     credits.pack()
-    choice.bind("<<ComboboxSelected>>", lambda event: startGame())
+    choice.bind("<<ComboboxSelected>>", lambda event: startGame(win, choice.get()))
     win.bind("<F1>", lambda event: helpBox())
     win.mainloop()

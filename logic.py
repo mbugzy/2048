@@ -8,7 +8,7 @@
 from random import randint, choice
 
 
-def generateRandom():
+def generate():
     global matrix, fieldSize
     i = randint(0, fieldSize - 1)
     j = randint(0, fieldSize - 1)
@@ -60,8 +60,7 @@ def right():
                     row[j] = 0
                     moved = True
                     combined[j + 1] = True
-    if moved:
-        generateRandom()
+    return moved
 
 
 def left():
@@ -82,8 +81,7 @@ def left():
                     row[j] = 0
                     moved = True
                     combined[j - 1] = True
-    if moved:
-        generateRandom()
+    return moved
 
 def up():
     global matrix, fieldSize
@@ -103,8 +101,7 @@ def up():
                     matrix[i][j] = 0
                     moved = True
                     combined[i - 1][j] = True
-    if moved:
-        generateRandom()
+    return moved
 
 def down():
     global matrix, fieldSize
@@ -124,30 +121,35 @@ def down():
                     matrix[i][j] = 0
                     moved = True
                     combined[i + 1][j] = True
-    if moved:
-        generateRandom()
+    return moved
 
 if __name__ == '__main__':
     fieldSize = 4
     matrix = [[0 for _ in range(fieldSize)] for __ in range(fieldSize)]
+    prevMatrix = [[0 for _ in range(fieldSize)] for __ in range(fieldSize)]
     # matrix[0][0] = 4
     # matrix[0][1] = 4
     # matrix[0][2] = 2
     # matrix[0][3] = 2
-    generateRandom()
-    generateRandom()
+    generate()
+    generate()
     while has_zero() or has_same_neighbors():
+        move = False
         for x in matrix:
             print(x)
         act = input()
         if act:
+            temp = [[j for j in i] for i in matrix]
             if act == 'r':
-                right()
+                move = right()
             elif act == 'l':
-                left()
+                move = left()
             elif act == 'u':
-                up()
+                move = up()
             elif act == 'd':
-                down()
-            else:
-                continue
+                move = down()
+            elif act == 'undo':
+                matrix = [[j for j in i] for i in prevMatrix]
+            if move:
+                generate()
+                prevMatrix = [[j for j in i] for i in temp]
