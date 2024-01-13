@@ -4,17 +4,11 @@ import tkinter.ttk as ttk
 import field
 
 
-def startGame(prevWin, fieldSize):
-    try:
+def startGame(prevWin=None, fieldSize='4x4'):
+    if prevWin:
         prevWin.destroy()
-        qwe = field.Field(int(fieldSize[0]))
-        qwe.run()
-    except Exception as e:
-        print(e)
-        import traceback
-        traceback.print_exc()
-        while True:
-            pass
+    qwe = field.Field(int(fieldSize[0]))
+    qwe.run()
 
 
 def helpBox():
@@ -36,7 +30,7 @@ def run():
     win.title("2048")
     x = win.winfo_screenwidth()
     y = win.winfo_screenheight()
-    win.geometry(f'+{x // 2 -100}+{y // 2-100 }')
+    win.geometry(f'+{x // 2 - 100}+{y // 2 - 100}')
     values = ['3x3', '4x4', '5x5', '6x6', '8x8']
     choice = ttk.Combobox(win, values=values)
     greetings = tk.Label(win, text="Hello, this is the copy\nof wellknown game 2048", font="Arial 15")

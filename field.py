@@ -86,6 +86,8 @@ class Field:
         self.fieldSize = fieldSize
         self.matrix = []
         self.matrix = [[0 for _ in range(fieldSize)] for __ in range(fieldSize)]
+        self.score = 0
+        self.prevScore = 0
         self.load = load
         if load:
             try:
@@ -94,6 +96,11 @@ class Field:
                     a = forLoad.readline().split()
                     for j in range(fieldSize):
                         self.matrix[i][j] = int(a[j])
+                self.score = int(forLoad.readline())
+                if not self.has_same_neighbors() and not self.has_zero():
+                    self.matrix = [[0 for _ in range(fieldSize)] for __ in range(fieldSize)]
+                    self.score = 0
+
             except Exception:
                 self.load = False
         self.prevMatrix = self.matrix.copy()
@@ -115,7 +122,6 @@ class Field:
 
         self.screen = pg.display.set_mode((self.screenWidth, self.screenHeight))
         self.square = (self.screenWidth - self.spacer * (self.fieldSize + 1)) / self.fieldSize
-        self.score = 0
         paintBG(self.screen, self.screenWidth, self.screenHeight, self.fieldSize, self.score)
         pg.display.flip()
 
@@ -255,6 +261,7 @@ class Field:
 
     def undo(self):
         self.matrix = [[j for j in i] for i in self.prevMatrix]
+        self.score = self.prevScore
         self.update()
 
     def run(self):
@@ -275,6 +282,19 @@ class Field:
                         self.quit()
                     if event.key == pg.K_s:
                         scoresTable.showScores(self.fieldSize)
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if pg.mouse.get_pressed()[0]:
+                        pos = pg.mouse.get_pos()
+                        if (3 * self.spacer + 2 * self.screenWidth / 3 < pos[0]
+                                < 3 * self.spacer + 2 * self.screenWidth / 3 + self.screenWidth / 5):
+                            if self.spacer / 3 < pos[1] < self.spacer / 3 + self.screenHeight / 18:
+                                scoresTable.showScores(self.fieldSize)
+                            if (2 * self.spacer / 3 + self.screenHeight / 18 < pos[1]
+                                    < 2 * self.spacer / 3 + 2 * self.screenHeight / 18):
+                                self.restart()
+                            if (self.spacer + 2 * self.screenHeight / 18 < pos[1]
+                                    < self.spacer + 2 * self.screenHeight / 18 + self.screenHeight / 18):
+                                self.undo()
             while self.has_same_neighbors() or self.has_zero():
                 once = True
                 for event in pg.event.get():
@@ -283,6 +303,7 @@ class Field:
                     if event.type == pg.KEYDOWN:
                         moved = False
                         tempMatrix = [[j for j in i] for i in self.matrix]
+                        tempScore = self.score
                         if event.key == pg.K_RIGHT:
                             moved = self.right()
                         elif event.key == pg.K_LEFT:
@@ -299,6 +320,7 @@ class Field:
                             scoresTable.showScores(self.fieldSize)
                         if moved:
                             self.prevMatrix = [[j for j in i] for i in tempMatrix]
+                            self.prevScore = tempScore
                             self.generate()
                             self.update()
                         # self.update()
@@ -329,6 +351,7 @@ class Field:
                 for j in range(self.fieldSize):
                     file.write(str(self.matrix[i][j]) + ' ')
                 file.write('\n')
+            file.write(str(self.score))
         pg.quit()
         scoresTable.askSaveScore(self.score, self.fieldSize)
         sys.exit()
@@ -340,5 +363,5 @@ class Field:
 
 
 if __name__ == '__main__':
-    qwe = Field(5)
+    qwe = Field(3)
     qwe.run()
